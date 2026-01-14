@@ -1,0 +1,430 @@
+export interface Opportunity {
+  id: string;
+  name: string;
+  type: 'grant' | 'hackathon' | 'accelerator' | 'program';
+  level?: string;
+  organization?: string;
+  features?: string;
+  focus?: string;
+  eligibility?: string;
+  amount?: string;
+  deadline?: string;
+  citations?: string;
+}
+
+// Government Grants & Schemes (from table.csv)
+export const governmentGrants: Opportunity[] = [
+  {
+    id: 'meity-cyber',
+    name: 'MeitY Cyber Security Research Grant',
+    type: 'grant',
+    level: 'Central',
+    organization: 'Ministry of Electronics and Information Technology (MeitY)',
+    features: 'Funding for R&D, innovation, and indigenous technology development in cybersecurity (including AI security, encryption, forensics, critical infrastructure, women/children safety online, etc.)',
+    focus: 'Cyber security research, productization, and innovation',
+    eligibility: 'Researchers, academic institutions, R&D orgs, consortia; apply via MeitY portal',
+  },
+  {
+    id: 'sisfs',
+    name: 'Startup India Seed Fund Scheme (SISFS)',
+    type: 'grant',
+    level: 'Central',
+    organization: 'DPIIT, Govt. of India',
+    features: 'Up to ₹20 lakh for proof of concept, up to ₹50 lakh for market entry; sector-agnostic but includes cybersecurity',
+    focus: 'Cybersecurity startups eligible',
+    eligibility: 'DPIIT-recognized startups; apply via Startup India portal',
+    amount: 'Up to ₹50 lakh',
+  },
+  {
+    id: 'cipher',
+    name: 'Cipher Cybersecurity Accelerator',
+    type: 'accelerator',
+    level: 'Central/Private',
+    organization: 'India Accelerator (with Govt. support)',
+    features: '4-month accelerator, ₹15–25 lakh seed funding, mentorship, Demo Day for further funding; focused on cybersecurity startups',
+    focus: 'Exclusively for cybersecurity startups',
+    eligibility: 'Early-stage/seed cybersecurity startups; apply via Startup India portal',
+    amount: '₹15–25 lakh',
+  },
+  {
+    id: 'gujarat-startup',
+    name: 'Gujarat Startup Policy (Interest Subsidy & Sustenance Allowance)',
+    type: 'grant',
+    level: 'State',
+    organization: 'Gujarat',
+    features: '8% interest subsidy (max ₹4 lakh/year, 3 years) on loans; ₹10,000/month sustenance allowance for 1 year',
+    focus: 'Cybersecurity/IT startups eligible',
+    eligibility: 'Registered startups in incubators; apply to state nodal agency',
+  },
+  {
+    id: 'gujarat-ssip',
+    name: 'Gujarat SSIP 2.0 (Student Startup & Innovation Policy)',
+    type: 'grant',
+    level: 'State',
+    organization: 'Gujarat',
+    features: 'Grants for student-led innovation/startups, including tech/cybersecurity',
+    focus: 'Cybersecurity/IT student projects eligible',
+    eligibility: 'Students/teams with approved proposals; apply via SSIP portal',
+  },
+  {
+    id: 'maharashtra-msins',
+    name: 'Maharashtra State Innovation Society (MSInS) Grants',
+    type: 'grant',
+    level: 'State',
+    organization: 'Maharashtra',
+    features: 'Seed funding, grants, and special schemes (e.g., for women-led startups)',
+    focus: 'Cybersecurity/IT startups eligible',
+    eligibility: 'Registered startups; apply via MSInS portal',
+  },
+  {
+    id: 'up-startup',
+    name: 'Uttar Pradesh Startup Policy Grants',
+    type: 'grant',
+    level: 'State',
+    organization: 'Uttar Pradesh',
+    features: 'Seed funding, incubation support, and grants for tech startups',
+    focus: 'Cybersecurity/IT startups eligible',
+    eligibility: 'Registered startups; apply via UP Startup portal',
+  },
+  {
+    id: 'uk-startup',
+    name: 'Uttarakhand Startup Policy Grants',
+    type: 'grant',
+    level: 'State',
+    organization: 'Uttarakhand',
+    features: 'Seed funding, incubation, and grants for tech/IT startups',
+    focus: 'Cybersecurity/IT startups eligible',
+    eligibility: 'Registered startups; apply via Uttarakhand Startup portal',
+  },
+];
+
+// Hackathons & Events (from table_1.csv)
+export const hackathons: Opportunity[] = [
+  {
+    id: 'nvidia-gtc',
+    name: 'NVIDIA GTC 2026 Hackathons',
+    type: 'hackathon',
+    organization: 'NVIDIA',
+    deadline: 'Mar 16–19, 2026',
+    features: 'NVIDIA GPUs (e.g., RTX 5090), dev tool credits, blog recognition',
+    focus: 'AI, cybersecurity, agentic AI, data center security',
+    eligibility: '18+, registration, some in-person required',
+  },
+  {
+    id: 'nvidia-dpu',
+    name: 'NVIDIA DPU & DOCA Virtual Hackathons',
+    type: 'hackathon',
+    organization: 'NVIDIA',
+    deadline: 'Dec 8–9, 2025 (DPU); Ongoing (DOCA)',
+    features: 'DLI credits, blog recognition',
+    focus: 'Data center/cloud security, DPU innovation',
+    eligibility: '18+, online registration, team review',
+  },
+  {
+    id: 'nvidia-vercel',
+    name: 'NVIDIA x Vercel Hackathon',
+    type: 'hackathon',
+    organization: 'NVIDIA & Vercel',
+    deadline: '2025 (TBA)',
+    features: 'RTX 5080 GPU, dev credits',
+    focus: 'AI, cybersecurity, prompt engineering',
+    eligibility: '18+, 2-person teams, in-person for prize',
+  },
+  {
+    id: 'google-hack',
+    name: 'Google Hackathons 2025–2026',
+    type: 'hackathon',
+    organization: 'Google',
+    deadline: 'Multiple, 2025–2026',
+    features: 'Cash prizes, Google Labs recognition',
+    focus: 'Cybersecurity, AI/ML, cloud',
+    eligibility: 'Students/professionals, idea/code submission',
+  },
+  {
+    id: 'crowdstrike-accelerator',
+    name: 'CrowdStrike, AWS, NVIDIA Cybersecurity Startup Accelerator',
+    type: 'accelerator',
+    organization: 'CrowdStrike, AWS, NVIDIA',
+    deadline: 'Jan 5–Mar 3, 2026; Final pitch: Mar 24, 2026',
+    features: 'Mentorship, technical support, potential investment (CrowdStrike Falcon Fund)',
+    focus: 'Cloud security, AI-driven cybersecurity',
+    eligibility: 'Global startups, application by Nov 15, 2025',
+  },
+  {
+    id: 'google-clinics',
+    name: 'Google Cybersecurity Clinics Fund',
+    type: 'grant',
+    organization: 'Google.org',
+    deadline: '2024–2026 (rolling)',
+    features: 'Up to $1M per US institution, $25M+ total',
+    focus: 'Cybersecurity clinics, workforce dev',
+    eligibility: 'US colleges/universities, rolling application',
+    amount: 'Up to $1M',
+  },
+  {
+    id: 'nvidia-inception',
+    name: 'NVIDIA Inception Program',
+    type: 'accelerator',
+    organization: 'NVIDIA',
+    deadline: 'Ongoing',
+    features: 'Tech, mentorship, credits, no direct cash',
+    focus: 'AI, cybersecurity, cloud',
+    eligibility: 'Startups in AI/cybersecurity, ongoing',
+  },
+  {
+    id: 'cisco-hack',
+    name: 'Cisco Hackathon 2025–2026',
+    type: 'hackathon',
+    organization: 'Cisco',
+    deadline: 'Ongoing, regional (India)',
+    features: 'Internships, jobs, gadgets, travel',
+    focus: 'Cybersecurity, networking, AI, IoT',
+    eligibility: 'Students, registration, regional focus',
+  },
+  {
+    id: 'cispa-eu',
+    name: 'CISPA European Cybersecurity & AI Hackathon Championship',
+    type: 'hackathon',
+    organization: 'CISPA',
+    deadline: 'Feb 14–15, 2026 (regional); Finale TBA',
+    features: '€4,000 (1st), €2,000 (2nd), €1,200 (3rd), €400 (runner-up)',
+    focus: 'AI, cybersecurity',
+    eligibility: 'EU students, 18+, 2-stage registration',
+    amount: '€4,000 - €400',
+  },
+  {
+    id: 'athack',
+    name: "@HACK 2026 (Canada's Student CTF)",
+    type: 'hackathon',
+    organization: 'TECHNATION & Hexploit',
+    deadline: 'Mar 7–8, 2026',
+    features: 'Prizes TBA, workshops, networking',
+    focus: 'CTF, cybersecurity',
+    eligibility: 'Student teams, in-person (Canada)',
+  },
+  {
+    id: 'eraksha',
+    name: 'eRaksha Hackathon 2026',
+    type: 'hackathon',
+    organization: 'eDC IIT Delhi & CyberPeace',
+    deadline: 'Jan 16–18, 2026 (finale)',
+    features: 'Awards, top 20 teams shortlisted',
+    focus: 'Agentic AI for IoT, deepfake detection',
+    eligibility: 'Teams (up to 3), students/professionals',
+  },
+  {
+    id: 'hackathonx',
+    name: "Hackathon X (India's Largest CTF)",
+    type: 'hackathon',
+    organization: 'Govt. of India & partners',
+    deadline: '2026 (TBA)',
+    features: 'Cash, certificates, training',
+    focus: 'CTF, cybersecurity',
+    eligibility: 'Indian students, CS/InfoSec fields',
+  },
+  {
+    id: 'devweek',
+    name: 'DeveloperWeek 2026 Hackathon',
+    type: 'hackathon',
+    organization: 'DevNetwork',
+    deadline: '2026 (TBA)',
+    features: 'Sponsor prizes, event passes',
+    focus: 'Cybersecurity, AI, cloud',
+    eligibility: 'Open to all, pre-registration',
+  },
+];
+
+// Programs & Additional Grants (from table_2.csv)
+export const programs: Opportunity[] = [
+  {
+    id: 'nidhi',
+    name: 'NIDHI (EIR, PRAYAS, Seed Support)',
+    type: 'program',
+    organization: 'Govt (IN)',
+    focus: 'Deep-tech, AI, Cybersecurity',
+    amount: '₹10–50 lakh',
+    eligibility: 'Incubated startups',
+  },
+  {
+    id: 'meity-tide',
+    name: 'MeitY TIDE 2.0',
+    type: 'program',
+    organization: 'Govt (IN)',
+    focus: 'AI, Cybersecurity, IoT',
+    amount: '₹4–7 lakh',
+    eligibility: 'Incubator mentorship',
+  },
+  {
+    id: 'indiaai',
+    name: 'IndiaAI Mission',
+    type: 'program',
+    organization: 'Govt (IN)',
+    focus: 'AI, Data, Societal Impact',
+    amount: 'Variable',
+    eligibility: 'Open calls for proposals',
+  },
+  {
+    id: 'nciipc',
+    name: 'NCIIPC AI Grand Challenge',
+    type: 'grant',
+    organization: 'Govt (IN)',
+    focus: 'AI, Cybersecurity',
+    amount: 'Up to ₹6 crore',
+    eligibility: 'Multi-stage, national security focus',
+  },
+  {
+    id: 'usistef',
+    name: 'USISTEF',
+    type: 'grant',
+    organization: 'Govt (Intl)',
+    focus: 'AI, Cybersecurity',
+    amount: '$100k–$400k',
+    eligibility: 'US-India collaboration',
+  },
+  {
+    id: 'horizon',
+    name: 'EU Horizon Europe',
+    type: 'grant',
+    organization: 'Govt (EU)',
+    focus: 'AI, Cybersecurity',
+    amount: 'Variable',
+    eligibility: 'International consortia',
+  },
+  {
+    id: 'unicef',
+    name: 'UNICEF Venture Fund',
+    type: 'grant',
+    organization: 'Multilateral',
+    focus: 'AI, Blockchain, Open Source',
+    amount: 'Up to $100k',
+    eligibility: 'Emerging economies, equity-free',
+  },
+  {
+    id: 'googleorg-ai',
+    name: 'Google.org Accelerator – Generative AI',
+    type: 'accelerator',
+    organization: 'Private',
+    focus: 'AI for Social Impact',
+    amount: '$500k–$2M',
+    eligibility: 'Global, social enterprises',
+  },
+  {
+    id: 'aigrant',
+    name: 'AI Grant (aigrant.org)',
+    type: 'grant',
+    organization: 'Private',
+    focus: 'Open-source AI',
+    amount: '$5k–$50k',
+    eligibility: 'Global, open-source',
+  },
+  {
+    id: 'climate-ai',
+    name: 'Climate Change AI Innovation Grants',
+    type: 'grant',
+    organization: 'Private',
+    focus: 'AI + Climate',
+    amount: 'Up to $150k',
+    eligibility: 'OECD university partner',
+  },
+  {
+    id: 'sff',
+    name: 'Survival and Flourishing Fund',
+    type: 'grant',
+    organization: 'Private',
+    focus: 'AI Safety, Long-term Impact',
+    amount: 'Variable',
+    eligibility: 'Global, rolling applications',
+  },
+  {
+    id: 'ltf',
+    name: 'Long-Term Future Fund',
+    type: 'grant',
+    organization: 'Private',
+    focus: 'AI, Long-term Impact',
+    amount: 'Variable',
+    eligibility: 'Global, paused until July 2025',
+  },
+  {
+    id: 'crdf',
+    name: 'CRDF Global',
+    type: 'grant',
+    organization: 'Private',
+    focus: 'Cybersecurity, Science',
+    amount: 'Variable',
+    eligibility: 'Global, research/business competitions',
+  },
+  {
+    id: 'isoc',
+    name: 'Internet Society Cybersecurity Grant',
+    type: 'grant',
+    organization: 'Private',
+    focus: 'Internet Security',
+    amount: 'Variable',
+    eligibility: 'Global, practical solutions',
+  },
+  {
+    id: 'aws-credits',
+    name: 'AWS Cloud Credits for Research',
+    type: 'program',
+    organization: 'Corporate',
+    focus: 'AI, Cybersecurity',
+    amount: 'Cloud credits',
+    eligibility: 'Research, global',
+  },
+  {
+    id: 'google-startups',
+    name: 'Google for Startups Cloud Program',
+    type: 'program',
+    organization: 'Corporate',
+    focus: 'AI, Cybersecurity',
+    amount: '$100k–$200k credits',
+    eligibility: 'Startups, global',
+  },
+  {
+    id: 'nvidia-inception-prog',
+    name: 'NVIDIA Inception Program',
+    type: 'program',
+    organization: 'Corporate',
+    focus: 'AI, Deep Learning',
+    amount: 'Resources, support',
+    eligibility: 'Startups, global',
+  },
+  {
+    id: 'nsf-cici',
+    name: 'NSF CICI, AI Institutes',
+    type: 'grant',
+    organization: 'Academic',
+    focus: 'AI, Cybersecurity',
+    amount: 'Variable',
+    eligibility: 'Research partnerships',
+  },
+  {
+    id: 'cisco-research',
+    name: 'Cisco Research Funding',
+    type: 'grant',
+    organization: 'Corporate',
+    focus: 'AI, Cybersecurity',
+    amount: 'Variable',
+    eligibility: 'Academic partnerships',
+  },
+];
+
+export const allOpportunities: Opportunity[] = [...governmentGrants, ...hackathons, ...programs];
+
+export function getOpportunityById(id: string): Opportunity | undefined {
+  return allOpportunities.find(o => o.id === id);
+}
+
+export function searchOpportunities(query: string): Opportunity[] {
+  const lowerQuery = query.toLowerCase();
+  return allOpportunities.filter(o => 
+    o.name.toLowerCase().includes(lowerQuery) ||
+    o.organization?.toLowerCase().includes(lowerQuery) ||
+    o.focus?.toLowerCase().includes(lowerQuery) ||
+    o.features?.toLowerCase().includes(lowerQuery)
+  );
+}
+
+export function filterByType(type: Opportunity['type']): Opportunity[] {
+  return allOpportunities.filter(o => o.type === type);
+}
