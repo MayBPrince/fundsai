@@ -1,1 +1,10 @@
 project_id = "vdhgwnirznieaerqpmnu"
+
+[functions.ai-chat]
+verify_jwt = false
+
+[functions.ai-match]
+verify_jwt = false
+
+[functions.scrape-grants]
+verify_jwt = false
