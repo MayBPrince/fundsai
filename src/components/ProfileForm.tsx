@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { User, Building, MapPin, FileCheck, Target, Save, Sparkles } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 
 interface ProfileFormProps {
   profile: UserProfile;
@@ -64,29 +63,21 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
   };
 
   return (
-    <div className="glass-card p-6 space-y-6">
-      <div className="flex items-center gap-3 border-b border-border pb-4">
-        <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-          <User className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <div>
-          <h2 className="font-semibold text-foreground">Business Profile</h2>
-          <p className="text-xs text-muted-foreground">Complete your profile for better matches</p>
-        </div>
+    <div className="max-w-2xl space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold mb-1">Business Profile</h2>
+        <p className="text-sm text-muted-foreground">Complete your profile for better grant matching</p>
       </div>
 
       {/* Basic Info */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="businessName" className="flex items-center gap-2">
-            <Building className="w-4 h-4" /> Business Name
-          </Label>
+          <Label htmlFor="businessName">Business Name</Label>
           <Input
             id="businessName"
             value={localProfile.businessName}
             onChange={(e) => setLocalProfile(prev => ({ ...prev, businessName: e.target.value }))}
             placeholder="e.g., Mandal Construction Tech"
-            className="bg-secondary"
           />
         </div>
 
@@ -98,7 +89,7 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
               setLocalProfile(prev => ({ ...prev, businessType: value }))
             }
           >
-            <SelectTrigger className="bg-secondary">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -112,10 +103,8 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
 
       {/* Location */}
       <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          <MapPin className="w-4 h-4" /> Location
-        </Label>
-        <div className="grid gap-3 md:grid-cols-3">
+        <Label>Location</Label>
+        <div className="grid gap-3 sm:grid-cols-3">
           <Input
             value={localProfile.location.city}
             onChange={(e) => setLocalProfile(prev => ({ 
@@ -123,7 +112,6 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
               location: { ...prev.location, city: e.target.value }
             }))}
             placeholder="City"
-            className="bg-secondary"
           />
           <Input
             value={localProfile.location.state}
@@ -132,7 +120,6 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
               location: { ...prev.location, state: e.target.value }
             }))}
             placeholder="State"
-            className="bg-secondary"
           />
           <Input
             value={localProfile.location.country}
@@ -141,13 +128,12 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
               location: { ...prev.location, country: e.target.value }
             }))}
             placeholder="Country"
-            className="bg-secondary"
           />
         </div>
       </div>
 
       {/* Stage & Revenue */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Business Stage</Label>
           <Select
@@ -156,7 +142,7 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
               setLocalProfile(prev => ({ ...prev, stage: value }))
             }
           >
-            <SelectTrigger className="bg-secondary">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -173,26 +159,23 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
             value={localProfile.revenue || ''}
             onChange={(e) => setLocalProfile(prev => ({ ...prev, revenue: e.target.value }))}
             placeholder="e.g., ₹10-50 lakh"
-            className="bg-secondary"
           />
         </div>
       </div>
 
       {/* Registrations */}
       <div className="space-y-3">
-        <Label className="flex items-center gap-2">
-          <FileCheck className="w-4 h-4" /> Registrations & Documents
-        </Label>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Label>Registrations & Documents</Label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { key: 'gstin' as const, label: 'GSTIN' },
             { key: 'pan' as const, label: 'PAN' },
-            { key: 'msme' as const, label: 'MSME Registered' },
+            { key: 'msme' as const, label: 'MSME' },
             { key: 'startupIndia' as const, label: 'Startup India' },
           ].map(reg => (
             <label
               key={reg.key}
-              className="flex items-center gap-2 p-3 rounded-lg bg-secondary cursor-pointer hover:bg-secondary/80 transition-colors"
+              className="flex items-center gap-2 p-3 rounded-md bg-secondary cursor-pointer hover:bg-secondary/80 transition-colors"
             >
               <Checkbox
                 checked={localProfile.registrations[reg.key] || false}
@@ -206,19 +189,21 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
 
       {/* Focus Areas */}
       <div className="space-y-3">
-        <Label className="flex items-center gap-2">
-          <Target className="w-4 h-4" /> Focus Areas
-        </Label>
+        <Label>Focus Areas</Label>
         <div className="flex flex-wrap gap-2">
           {FOCUS_AREAS.map(area => (
-            <Badge
+            <button
               key={area}
-              variant={localProfile.focusAreas?.includes(area) ? "default" : "outline"}
-              className="cursor-pointer transition-all hover:scale-105"
+              type="button"
               onClick={() => toggleFocusArea(area)}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                localProfile.focusAreas?.includes(area)
+                  ? "bg-foreground text-background"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              }`}
             >
               {area}
-            </Badge>
+            </button>
           ))}
         </div>
       </div>
@@ -229,25 +214,28 @@ export function ProfileForm({ profile, onUpdate, onRunMatch, isMatching }: Profi
         <Textarea
           value={localProfile.projectDescription || ''}
           onChange={(e) => setLocalProfile(prev => ({ ...prev, projectDescription: e.target.value }))}
-          placeholder="Describe your project or business idea for better matching..."
-          className="bg-secondary min-h-[100px]"
+          placeholder="Describe your project or business idea..."
+          className="min-h-[100px]"
         />
       </div>
 
       {/* Actions */}
       <div className="flex gap-3 pt-4 border-t border-border">
-        <Button onClick={handleSave} variant="outline" className="flex-1">
-          <Save className="w-4 h-4 mr-2" />
+        <Button onClick={handleSave} variant="outline">
           Save Profile
         </Button>
         <Button 
-          onClick={onRunMatch} 
-          variant="glow" 
-          className="flex-1"
+          onClick={onRunMatch}
           disabled={isMatching || !localProfile.businessName}
         >
-          <Sparkles className="w-4 h-4 mr-2" />
-          {isMatching ? 'Analyzing...' : 'Run AI Matching'}
+          {isMatching ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Matching...
+            </>
+          ) : (
+            "Run AI Matching"
+          )}
         </Button>
       </div>
     </div>

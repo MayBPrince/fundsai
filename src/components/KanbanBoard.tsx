@@ -1,18 +1,13 @@
 import { useState } from "react";
 import { TrackedGrant, KANBAN_COLUMNS } from "@/types/grant";
 import { Opportunity } from "@/data/opportunities";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   GripVertical, 
-  Trash2, 
-  ExternalLink, 
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
+  Trash2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Inbox
 } from "lucide-react";
 
 interface KanbanBoardProps {
@@ -52,13 +47,6 @@ export function KanbanBoard({
     return trackedGrants.filter(g => g.status === status);
   };
 
-  const getScoreColor = (score?: number) => {
-    if (!score) return 'text-muted-foreground';
-    if (score >= 80) return 'text-success';
-    if (score >= 60) return 'text-warning';
-    return 'text-destructive';
-  };
-
   const moveToNextStatus = (tracked: TrackedGrant) => {
     const currentIndex = KANBAN_COLUMNS.findIndex(c => c.id === tracked.status);
     if (currentIndex < KANBAN_COLUMNS.length - 2) {
@@ -75,11 +63,11 @@ export function KanbanBoard({
 
   if (trackedGrants.length === 0) {
     return (
-      <div className="glass-card p-8 text-center">
-        <Clock className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-        <h3 className="text-lg font-semibold mb-2">No Tracked Grants Yet</h3>
-        <p className="text-muted-foreground text-sm">
-          Start tracking grants by clicking the "Track" button on any opportunity card.
+      <div className="text-center py-16">
+        <Inbox className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+        <h3 className="text-lg font-medium mb-2">No tracked grants</h3>
+        <p className="text-sm text-muted-foreground">
+          Start tracking grants from the Discover tab
         </p>
       </div>
     );
@@ -88,29 +76,29 @@ export function KanbanBoard({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold gradient-text">Application Tracker</h2>
-        <Badge variant="outline">{trackedGrants.length} tracked</Badge>
+        <h2 className="text-xl font-semibold">Application Tracker</h2>
+        <span className="text-sm text-muted-foreground">{trackedGrants.length} tracked</span>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
+      <div className="flex gap-3 overflow-x-auto pb-4">
         {KANBAN_COLUMNS.map(column => {
           const columnGrants = getGrantsForColumn(column.id);
           
           return (
             <div
               key={column.id}
-              className={`min-w-[280px] flex-shrink-0 rounded-xl border border-border ${column.color} p-3`}
+              className="min-w-[260px] flex-shrink-0 bg-secondary/50 rounded-lg p-3"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-sm">{column.title}</h3>
-                <Badge variant="secondary" className="text-xs">
+                <h3 className="text-sm font-medium">{column.title}</h3>
+                <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded">
                   {columnGrants.length}
-                </Badge>
+                </span>
               </div>
 
-              <div className="space-y-2 min-h-[200px]">
+              <div className="space-y-2 min-h-[150px]">
                 {columnGrants.map(tracked => {
                   const opportunity = getOpportunity(tracked.opportunityId);
                   if (!opportunity) return null;
@@ -120,64 +108,54 @@ export function KanbanBoard({
                       key={tracked.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, tracked.id)}
-                      className={`bg-card border border-border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-primary/50 transition-all ${
+                      className={`bg-background border border-border rounded-md p-3 cursor-grab active:cursor-grabbing hover:border-foreground/20 transition-colors ${
                         draggedItem === tracked.id ? 'opacity-50' : ''
                       }`}
                     >
                       <div className="flex items-start gap-2">
                         <GripVertical className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm line-clamp-2 mb-1">
+                          <h4 className="text-sm font-medium line-clamp-2 mb-1">
                             {opportunity.name}
                           </h4>
-                          
                           {tracked.eligibilityScore && (
-                            <div className={`flex items-center gap-1 text-xs ${getScoreColor(tracked.eligibilityScore)}`}>
-                              <TrendingUp className="w-3 h-3" />
+                            <span className="text-xs text-muted-foreground">
                               {tracked.eligibilityScore}% match
-                            </div>
+                            </span>
                           )}
-
-                          {tracked.gaps && tracked.gaps.length > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-warning mt-1">
-                              <AlertTriangle className="w-3 h-3" />
-                              {tracked.gaps.length} gap(s)
-                            </div>
-                          )}
-
                           {opportunity.amount && (
                             <p className="text-xs text-success mt-1">{opportunity.amount}</p>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 mt-3 pt-2 border-t border-border">
+                      <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border">
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-7 w-7"
+                          className="h-6 w-6"
                           onClick={() => moveToPrevStatus(tracked)}
                           disabled={column.id === 'discovered'}
                         >
-                          <ChevronLeft className="w-4 h-4" />
+                          <ChevronLeft className="w-3 h-3" />
                         </Button>
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-7 w-7"
+                          className="h-6 w-6"
                           onClick={() => moveToNextStatus(tracked)}
                           disabled={column.id === 'rejected' || column.id === 'awarded'}
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronRight className="w-3 h-3" />
                         </Button>
                         <div className="flex-1" />
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          className="h-6 w-6 text-muted-foreground hover:text-destructive"
                           onClick={() => onRemove(tracked.id)}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
                     </div>

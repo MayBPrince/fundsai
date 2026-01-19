@@ -6,17 +6,12 @@ import { Button } from "@/components/ui/button";
 import { 
   Calendar, 
   DollarSign, 
-  MapPin, 
-  Target, 
-  Users,
+  Building2,
   Bookmark,
   BookmarkCheck,
   Plus,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle2,
-  ExternalLink,
-  Sparkles
+  Check,
+  ArrowUpRight
 } from "lucide-react";
 import {
   Dialog,
@@ -33,13 +28,6 @@ interface EnhancedOpportunityCardProps {
   onToggleBookmark: () => void;
   onTrack: () => void;
 }
-
-const typeVariantMap: Record<Opportunity['type'], "grant" | "hackathon" | "accelerator" | "program"> = {
-  grant: "grant",
-  hackathon: "hackathon",
-  accelerator: "accelerator",
-  program: "program",
-};
 
 const typeLabels: Record<Opportunity['type'], string> = {
   grant: "Grant",
@@ -58,255 +46,187 @@ export function EnhancedOpportunityCard({
 }: EnhancedOpportunityCardProps) {
   const [showDetails, setShowDetails] = useState(false);
 
-  const getScoreColor = (score?: number) => {
-    if (!score) return 'text-muted-foreground';
-    if (score >= 80) return 'text-success';
-    if (score >= 60) return 'text-warning';
-    return 'text-destructive';
-  };
-
-  const getScoreBg = (score?: number) => {
-    if (!score) return 'bg-muted';
-    if (score >= 80) return 'bg-success/20 border-success/30';
-    if (score >= 60) return 'bg-warning/20 border-warning/30';
-    return 'bg-destructive/20 border-destructive/30';
-  };
-
   return (
     <>
       <div 
-        className="glass-card p-5 hover:border-primary/50 transition-all duration-300 cursor-pointer group animate-fade-in relative"
+        className="notion-card p-4 cursor-pointer group animate-fade-in"
         onClick={() => setShowDetails(true)}
       >
-        {/* Match Score Badge */}
-        {match && (
-          <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold border ${getScoreBg(match.score)} ${getScoreColor(match.score)}`}>
-            {match.score}%
-          </div>
-        )}
-
-        {/* New Grant Indicator */}
-        {(opportunity as any).isNew && (
-          <div className="absolute -top-2 -left-2 px-2 py-1 rounded-full text-xs font-bold bg-primary text-primary-foreground flex items-center gap-1">
-            <Sparkles className="w-3 h-3" /> New
-          </div>
-        )}
-
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
             {opportunity.name}
           </h3>
-          <Badge variant={typeVariantMap[opportunity.type]} className="shrink-0">
-            {typeLabels[opportunity.type]}
-          </Badge>
+          {match && (
+            <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+              match.score >= 80 ? 'bg-green-100 text-green-700' :
+              match.score >= 60 ? 'bg-yellow-100 text-yellow-700' :
+              'bg-gray-100 text-gray-600'
+            }`}>
+              {match.score}%
+            </span>
+          )}
         </div>
         
-        {opportunity.organization && (
-          <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
-            <MapPin className="w-3.5 h-3.5" />
-            {opportunity.organization}
-          </p>
-        )}
-        
-        <div className="space-y-2 text-sm">
-          {opportunity.focus && (
-            <div className="flex items-start gap-2 text-muted-foreground">
-              <Target className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary" />
-              <span className="line-clamp-2">{opportunity.focus}</span>
+        <div className="space-y-1.5 text-sm text-muted-foreground mb-3">
+          {opportunity.organization && (
+            <div className="flex items-center gap-2">
+              <Building2 className="w-3.5 h-3.5" />
+              <span className="truncate">{opportunity.organization}</span>
             </div>
           )}
-          
           {opportunity.amount && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <DollarSign className="w-3.5 h-3.5 shrink-0 text-success" />
-              <span className="font-medium text-success">{opportunity.amount}</span>
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-3.5 h-3.5 text-success" />
+              <span className="text-success font-medium">{opportunity.amount}</span>
             </div>
           )}
-          
           {opportunity.deadline && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="w-3.5 h-3.5 shrink-0 text-warning" />
+            <div className="flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5" />
               <span>{opportunity.deadline}</span>
             </div>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-8"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleBookmark();
-            }}
-          >
-            {isBookmarked ? (
-              <BookmarkCheck className="w-4 h-4 text-primary" />
-            ) : (
-              <Bookmark className="w-4 h-4" />
-            )}
-          </Button>
-          
-          {!tracked ? (
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <span className="text-xs text-muted-foreground">
+            {typeLabels[opportunity.type]}
+          </span>
+          <div className="flex items-center gap-1">
             <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 h-8"
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7"
               onClick={(e) => {
                 e.stopPropagation();
-                onTrack();
+                onToggleBookmark();
               }}
             >
-              <Plus className="w-4 h-4 mr-1" />
-              Track
+              {isBookmarked ? (
+                <BookmarkCheck className="w-4 h-4 text-foreground" />
+              ) : (
+                <Bookmark className="w-4 h-4" />
+              )}
             </Button>
-          ) : (
-            <Badge variant="secondary" className="flex-1 justify-center">
-              <CheckCircle2 className="w-3 h-3 mr-1" />
-              {tracked.status.replace('_', ' ')}
-            </Badge>
-          )}
+            {!tracked ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                className="h-7 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTrack();
+                }}
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Track
+              </Button>
+            ) : (
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                Tracking
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Details Dialog */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <div className="flex items-start justify-between gap-4">
-              <DialogTitle className="text-xl">{opportunity.name}</DialogTitle>
-              <Badge variant={typeVariantMap[opportunity.type]}>
-                {typeLabels[opportunity.type]}
-              </Badge>
-            </div>
+            <DialogTitle className="pr-8">{opportunity.name}</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 mt-4">
-            {/* Match Analysis */}
+          <div className="space-y-4">
+            {/* Match Score */}
             {match && (
-              <div className={`p-4 rounded-lg border ${getScoreBg(match.score)}`}>
-                <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className={`w-5 h-5 ${getScoreColor(match.score)}`} />
-                  <span className={`font-bold text-lg ${getScoreColor(match.score)}`}>
+              <div className={`p-3 rounded-lg ${
+                match.score >= 80 ? 'bg-green-50 border border-green-200' :
+                match.score >= 60 ? 'bg-yellow-50 border border-yellow-200' :
+                'bg-gray-50 border border-gray-200'
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`text-lg font-semibold ${
+                    match.score >= 80 ? 'text-green-700' :
+                    match.score >= 60 ? 'text-yellow-700' :
+                    'text-gray-700'
+                  }`}>
                     {match.score}% Match
                   </span>
                 </div>
-                
                 {match.reasons.length > 0 && (
-                  <div className="mb-3">
-                    <p className="text-sm font-medium text-foreground mb-2">Why you match:</p>
-                    <ul className="space-y-1">
-                      {match.reasons.map((reason, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                          <CheckCircle2 className="w-4 h-4 text-success shrink-0 mt-0.5" />
-                          {reason}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {match.gaps.length > 0 && (
-                  <div className="mb-3">
-                    <p className="text-sm font-medium text-foreground mb-2">Gaps to address:</p>
-                    <ul className="space-y-1">
-                      {match.gaps.map((gap, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                          <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
-                          {gap}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {match.recommendation && (
-                  <p className="text-sm bg-background/50 p-3 rounded-lg">
-                    <strong>Recommendation:</strong> {match.recommendation}
-                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    {match.reasons.slice(0, 3).map((reason, i) => (
+                      <li key={i}>✓ {reason}</li>
+                    ))}
+                  </ul>
                 )}
               </div>
             )}
 
-            {/* Details Grid */}
-            <div className="grid gap-4 md:grid-cols-2">
+            {/* Details */}
+            <div className="grid gap-3 text-sm">
               {opportunity.organization && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Organization</p>
+                  <span className="text-muted-foreground">Organization</span>
                   <p className="font-medium">{opportunity.organization}</p>
                 </div>
               )}
               {opportunity.amount && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Amount</p>
+                  <span className="text-muted-foreground">Amount</span>
                   <p className="font-medium text-success">{opportunity.amount}</p>
                 </div>
               )}
               {opportunity.deadline && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Deadline</p>
+                  <span className="text-muted-foreground">Deadline</span>
                   <p className="font-medium">{opportunity.deadline}</p>
                 </div>
               )}
-              {opportunity.level && (
+              {opportunity.focus && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Level</p>
-                  <p className="font-medium">{opportunity.level}</p>
+                  <span className="text-muted-foreground">Focus</span>
+                  <p>{opportunity.focus}</p>
+                </div>
+              )}
+              {opportunity.eligibility && (
+                <div>
+                  <span className="text-muted-foreground">Eligibility</span>
+                  <p>{opportunity.eligibility}</p>
                 </div>
               )}
             </div>
 
-            {opportunity.focus && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Focus Areas</p>
-                <p className="font-medium">{opportunity.focus}</p>
-              </div>
-            )}
-
-            {opportunity.features && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Features</p>
-                <p>{opportunity.features}</p>
-              </div>
-            )}
-
-            {opportunity.eligibility && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Eligibility</p>
-                <p>{opportunity.eligibility}</p>
-              </div>
-            )}
-
             {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-border">
+            <div className="flex gap-2 pt-2">
               <Button
                 variant="outline"
+                className="flex-1"
                 onClick={() => onToggleBookmark()}
               >
                 {isBookmarked ? (
                   <>
-                    <BookmarkCheck className="w-4 h-4 mr-2 text-primary" />
-                    Bookmarked
+                    <BookmarkCheck className="w-4 h-4 mr-2" />
+                    Saved
                   </>
                 ) : (
                   <>
                     <Bookmark className="w-4 h-4 mr-2" />
-                    Bookmark
+                    Save
                   </>
                 )}
               </Button>
-              
               {!tracked ? (
-                <Button variant="glow" className="flex-1" onClick={onTrack}>
+                <Button className="flex-1" onClick={onTrack}>
                   <Plus className="w-4 h-4 mr-2" />
                   Start Tracking
                 </Button>
               ) : (
                 <Button variant="secondary" className="flex-1" disabled>
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Tracking: {tracked.status.replace('_', ' ')}
+                  <Check className="w-4 h-4 mr-2" />
+                  Tracking
                 </Button>
               )}
             </div>

@@ -2,19 +2,17 @@ import { useState, useMemo } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 import { EnhancedOpportunityCard } from "@/components/EnhancedOpportunityCard";
 import { FilterBar } from "@/components/FilterBar";
-import { StatsBar } from "@/components/StatsBar";
 import { ProfileForm } from "@/components/ProfileForm";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { DiscoverPanel } from "@/components/DiscoverPanel";
 import { useGrantStore } from "@/hooks/useGrantStore";
-import { Shield, Sparkles, LayoutDashboard, Search, User, Kanban } from "lucide-react";
+import { Search, Kanban, User, MessageSquare, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<"discover" | "tracker" | "profile">("discover");
   const [isChatOpen, setIsChatOpen] = useState(false);
   
   const {
@@ -42,7 +40,6 @@ const Index = () => {
           o.focus?.toLowerCase().includes(query)
       );
     }
-    // Sort by match score if available
     return filtered.sort((a, b) => {
       const matchA = matchResults.find(m => m.id === a.id)?.score || 0;
       const matchB = matchResults.find(m => m.id === b.id)?.score || 0;
@@ -50,109 +47,127 @@ const Index = () => {
     });
   }, [searchQuery, activeFilter, allOpportunities, matchResults]);
 
+  const tabs = [
+    { id: "discover" as const, label: "Discover", icon: Search },
+    { id: "tracker" as const, label: "Tracker", icon: Kanban },
+    { id: "profile" as const, label: "Profile", icon: User },
+  ];
+
   return (
-    <div className="min-h-screen bg-background cyber-grid">
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center glow-primary">
-                <Shield className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold gradient-text">Grant AI</h1>
-                <p className="text-xs text-muted-foreground">Smart Grant Discovery & Management</p>
-              </div>
-            </div>
-            <Button variant="glow" className="hidden lg:flex" onClick={() => setIsChatOpen(!isChatOpen)}>
-              <Sparkles className="w-4 h-4 mr-2" />AI Assistant
-            </Button>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="glow" size="icon" className="lg:hidden">
-                  <Sparkles className="w-4 h-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:w-96 p-0">
-                <ChatInterface />
-              </SheetContent>
-            </Sheet>
-          </div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border bg-background">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+          <h1 className="text-lg font-semibold">Grant AI</h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className="gap-2"
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span className="hidden sm:inline">Ask AI</span>
+          </Button>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex gap-6">
-          <main className={`flex-1 space-y-6 transition-all ${isChatOpen ? "lg:mr-96" : ""}`}>
-            <Tabs defaultValue="discover" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 max-w-lg">
-                <TabsTrigger value="discover"><Search className="w-4 h-4 mr-2" />Discover</TabsTrigger>
-                <TabsTrigger value="tracker"><Kanban className="w-4 h-4 mr-2" />Tracker</TabsTrigger>
-                <TabsTrigger value="profile"><User className="w-4 h-4 mr-2" />Profile</TabsTrigger>
-                <TabsTrigger value="dashboard"><LayoutDashboard className="w-4 h-4 mr-2" />Stats</TabsTrigger>
-              </TabsList>
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Tab Navigation */}
+        <nav className="flex gap-1 mb-6 border-b border-border">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                activeTab === tab.id
+                  ? "border-foreground text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+              {tab.id === "tracker" && trackedGrants.length > 0 && (
+                <span className="text-xs bg-secondary px-1.5 py-0.5 rounded">
+                  {trackedGrants.length}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
 
-              <TabsContent value="discover" className="space-y-6">
-                <DiscoverPanel onScrape={scrapeNewGrants} isScraping={isScraping} scrapedCount={scrapedGrants.length} />
-                <StatsBar />
-                <FilterBar searchQuery={searchQuery} onSearchChange={setSearchQuery} activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-                <p className="text-sm text-muted-foreground">
-                  Showing <span className="font-medium text-foreground">{filteredOpportunities.length}</span> opportunities
-                  {matchResults.length > 0 && <span className="text-primary"> • Sorted by match score</span>}
-                </p>
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {filteredOpportunities.map((opp) => {
-                    const { match, tracked, isBookmarked } = getOpportunityWithMatch(opp.id);
-                    return (
-                      <EnhancedOpportunityCard
-                        key={opp.id}
-                        opportunity={opp}
-                        match={match}
-                        tracked={tracked}
-                        isBookmarked={isBookmarked}
-                        onToggleBookmark={() => toggleBookmark(opp.id)}
-                        onTrack={() => trackGrant(opp.id)}
-                      />
-                    );
-                  })}
-                </div>
-              </TabsContent>
+        {/* Content */}
+        <main className="space-y-6">
+          {activeTab === "discover" && (
+            <>
+              <DiscoverPanel 
+                onScrape={scrapeNewGrants} 
+                isScraping={isScraping} 
+                scrapedCount={scrapedGrants.length} 
+              />
+              
+              <FilterBar 
+                searchQuery={searchQuery} 
+                onSearchChange={setSearchQuery} 
+                activeFilter={activeFilter} 
+                onFilterChange={setActiveFilter} 
+              />
 
-              <TabsContent value="tracker">
-                <KanbanBoard
-                  trackedGrants={trackedGrants}
-                  getOpportunity={(id) => allOpportunities.find(o => o.id === id)}
-                  onUpdateStatus={updateTrackedStatus}
-                  onRemove={removeTracked}
-                />
-              </TabsContent>
+              <p className="text-sm text-muted-foreground">
+                {filteredOpportunities.length} opportunities
+                {matchResults.length > 0 && " · sorted by match"}
+              </p>
 
-              <TabsContent value="profile">
-                <ProfileForm profile={profile} onUpdate={setProfile} onRunMatch={runAIMatching} isMatching={isMatching} />
-              </TabsContent>
-
-              <TabsContent value="dashboard">
-                <StatsBar />
-                <div className="glass-card p-6 mt-6">
-                  <h3 className="font-semibold mb-4">Tracking Summary</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div><p className="text-2xl font-bold text-info">{trackedGrants.length}</p><p className="text-xs text-muted-foreground">Tracked</p></div>
-                    <div><p className="text-2xl font-bold text-primary">{bookmarks.length}</p><p className="text-xs text-muted-foreground">Bookmarked</p></div>
-                    <div><p className="text-2xl font-bold text-warning">{trackedGrants.filter(t => t.status === 'submitted').length}</p><p className="text-xs text-muted-foreground">Submitted</p></div>
-                    <div><p className="text-2xl font-bold text-success">{trackedGrants.filter(t => t.status === 'awarded').length}</p><p className="text-xs text-muted-foreground">Awarded</p></div>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </main>
-
-          {isChatOpen && (
-            <aside className="hidden lg:block fixed right-0 top-[73px] w-96 h-[calc(100vh-73px)] border-l border-border bg-background/95 backdrop-blur-xl">
-              <ChatInterface />
-            </aside>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredOpportunities.map((opp) => {
+                  const { match, tracked, isBookmarked } = getOpportunityWithMatch(opp.id);
+                  return (
+                    <EnhancedOpportunityCard
+                      key={opp.id}
+                      opportunity={opp}
+                      match={match}
+                      tracked={tracked}
+                      isBookmarked={isBookmarked}
+                      onToggleBookmark={() => toggleBookmark(opp.id)}
+                      onTrack={() => trackGrant(opp.id)}
+                    />
+                  );
+                })}
+              </div>
+            </>
           )}
-        </div>
+
+          {activeTab === "tracker" && (
+            <KanbanBoard
+              trackedGrants={trackedGrants}
+              getOpportunity={(id) => allOpportunities.find(o => o.id === id)}
+              onUpdateStatus={updateTrackedStatus}
+              onRemove={removeTracked}
+            />
+          )}
+
+          {activeTab === "profile" && (
+            <ProfileForm 
+              profile={profile} 
+              onUpdate={setProfile} 
+              onRunMatch={runAIMatching} 
+              isMatching={isMatching} 
+            />
+          )}
+        </main>
       </div>
+
+      {/* Chat Slide-over */}
+      {isChatOpen && (
+        <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-background border-l border-border z-50 flex flex-col">
+          <div className="flex items-center justify-between px-4 h-14 border-b border-border">
+            <span className="font-medium">AI Assistant</span>
+            <Button variant="ghost" size="icon" onClick={() => setIsChatOpen(false)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <ChatInterface />
+        </div>
+      )}
     </div>
   );
 };
