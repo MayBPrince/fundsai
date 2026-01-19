@@ -1,18 +1,17 @@
 import { useState, useMemo } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 import { EnhancedOpportunityCard } from "@/components/EnhancedOpportunityCard";
-import { FilterBar } from "@/components/FilterBar";
-import { ProfileForm } from "@/components/ProfileForm";
 import { KanbanBoard } from "@/components/KanbanBoard";
-import { DiscoverPanel } from "@/components/DiscoverPanel";
+import { Onboarding } from "@/components/Onboarding";
 import { useGrantStore } from "@/hooks/useGrantStore";
-import { Search, Kanban, User, MessageSquare, X } from "lucide-react";
+import { Search, Kanban, MessageSquare, X, Settings, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { UserProfile } from "@/types/grant";
 
 const Index = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState<"discover" | "tracker" | "profile">("discover");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"home" | "tracker">("home");
   const [isChatOpen, setIsChatOpen] = useState(false);
   
   const {
@@ -20,37 +19,41 @@ const Index = () => {
     trackedGrants, trackGrant, updateTrackedStatus, removeTracked,
     bookmarks, toggleBookmark,
     matchResults, isMatching, runAIMatching,
-    scrapedGrants, isScraping, scrapeNewGrants,
     getAllOpportunities, getOpportunityWithMatch,
   } = useGrantStore();
 
+  // Check if user has completed onboarding
+  const hasCompletedOnboarding = profile.businessName.trim().length > 0;
+
   const allOpportunities = getAllOpportunities();
 
-  const filteredOpportunities = useMemo(() => {
-    let filtered = allOpportunities;
-    if (activeFilter !== "all") {
-      filtered = filtered.filter((o) => o.type === activeFilter);
-    }
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (o) =>
-          o.name.toLowerCase().includes(query) ||
-          o.organization?.toLowerCase().includes(query) ||
-          o.focus?.toLowerCase().includes(query)
-      );
-    }
-    return filtered.sort((a, b) => {
-      const matchA = matchResults.find(m => m.id === a.id)?.score || 0;
-      const matchB = matchResults.find(m => m.id === b.id)?.score || 0;
-      return matchB - matchA;
-    });
-  }, [searchQuery, activeFilter, allOpportunities, matchResults]);
+  // Get top matched opportunities for home
+  const topOpportunities = useMemo(() => {
+    return [...allOpportunities]
+      .sort((a, b) => {
+        const matchA = matchResults.find(m => m.id === a.id)?.score || 50;
+        const matchB = matchResults.find(m => m.id === b.id)?.score || 50;
+        return matchB - matchA;
+      })
+      .slice(0, 9);
+  }, [allOpportunities, matchResults]);
+
+  const handleOnboardingComplete = async (completedProfile: UserProfile) => {
+    setProfile(completedProfile);
+    // Automatically run AI matching after onboarding
+    setTimeout(() => {
+      runAIMatching();
+    }, 500);
+  };
+
+  // Show onboarding if not completed
+  if (!hasCompletedOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
+  }
 
   const tabs = [
-    { id: "discover" as const, label: "Discover", icon: Search },
+    { id: "home" as const, label: "For You", icon: Search },
     { id: "tracker" as const, label: "Tracker", icon: Kanban },
-    { id: "profile" as const, label: "Profile", icon: User },
   ];
 
   return (
@@ -59,15 +62,17 @@ const Index = () => {
       <header className="sticky top-0 z-50 border-b border-border bg-background">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <h1 className="text-lg font-semibold">Grant AI</h1>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsChatOpen(!isChatOpen)}
-            className="gap-2"
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span className="hidden sm:inline">Ask AI</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsChatOpen(!isChatOpen)}
+              className="gap-2"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Ask AI</span>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -97,41 +102,66 @@ const Index = () => {
 
         {/* Content */}
         <main className="space-y-6">
-          {activeTab === "discover" && (
+          {activeTab === "home" && (
             <>
-              <DiscoverPanel 
-                onScrape={scrapeNewGrants} 
-                isScraping={isScraping} 
-                scrapedCount={scrapedGrants.length} 
-              />
-              
-              <FilterBar 
-                searchQuery={searchQuery} 
-                onSearchChange={setSearchQuery} 
-                activeFilter={activeFilter} 
-                onFilterChange={setActiveFilter} 
-              />
+              {/* Profile Summary */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
+                <div>
+                  <p className="font-medium">{profile.businessName}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {profile.businessType} · {profile.location.state} · {profile.stage}
+                  </p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/discover")} className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  Edit Profile
+                </Button>
+              </div>
 
-              <p className="text-sm text-muted-foreground">
-                {filteredOpportunities.length} opportunities
-                {matchResults.length > 0 && " · sorted by match"}
-              </p>
+              {/* AI Matching Status */}
+              {isMatching && (
+                <div className="flex items-center gap-3 p-4 rounded-lg border border-border">
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">Finding your best matches...</p>
+                    <p className="text-sm text-muted-foreground">Analyzing grants based on your profile</p>
+                  </div>
+                </div>
+              )}
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredOpportunities.map((opp) => {
-                  const { match, tracked, isBookmarked } = getOpportunityWithMatch(opp.id);
-                  return (
-                    <EnhancedOpportunityCard
-                      key={opp.id}
-                      opportunity={opp}
-                      match={match}
-                      tracked={tracked}
-                      isBookmarked={isBookmarked}
-                      onToggleBookmark={() => toggleBookmark(opp.id)}
-                      onTrack={() => trackGrant(opp.id)}
-                    />
-                  );
-                })}
+              {/* Recommended Grants */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">Recommended for You</h2>
+                  <Button variant="ghost" size="sm" onClick={() => navigate("/discover")}>
+                    View All →
+                  </Button>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {topOpportunities.map((opp) => {
+                    const { match, tracked, isBookmarked } = getOpportunityWithMatch(opp.id);
+                    return (
+                      <EnhancedOpportunityCard
+                        key={opp.id}
+                        opportunity={opp}
+                        match={match}
+                        tracked={tracked}
+                        isBookmarked={isBookmarked}
+                        onToggleBookmark={() => toggleBookmark(opp.id)}
+                        onTrack={() => trackGrant(opp.id)}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Discover More CTA */}
+              <div className="text-center py-8">
+                <Button onClick={() => navigate("/discover")} size="lg" className="gap-2">
+                  <Search className="w-4 h-4" />
+                  Discover More Grants
+                </Button>
               </div>
             </>
           )}
@@ -142,15 +172,6 @@ const Index = () => {
               getOpportunity={(id) => allOpportunities.find(o => o.id === id)}
               onUpdateStatus={updateTrackedStatus}
               onRemove={removeTracked}
-            />
-          )}
-
-          {activeTab === "profile" && (
-            <ProfileForm 
-              profile={profile} 
-              onUpdate={setProfile} 
-              onRunMatch={runAIMatching} 
-              isMatching={isMatching} 
             />
           )}
         </main>
