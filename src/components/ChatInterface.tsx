@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Send, Bot, User, Loader2 } from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -11,17 +10,16 @@ interface Message {
 }
 
 const QUICK_PROMPTS = [
-  "Find grants for AI cybersecurity startups",
-  "What hackathons are happening in 2026?",
-  "Suggest funding for student projects",
-  "Compare NVIDIA programs vs Google grants",
+  "Find grants for AI startups",
+  "What hackathons are in 2026?",
+  "Suggest funding for my project",
 ];
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "👋 Hi! I'm **GrantAI**, your AI-powered assistant for cybersecurity grants and hackathons. I can help you:\n\n• Find the best funding opportunities\n• Check eligibility requirements\n• Track upcoming deadlines\n• Suggest grants matching your project\n\nWhat would you like to explore today?",
+      content: "Hi! I can help you find grants, check eligibility, and track opportunities. What would you like to explore?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -126,17 +124,6 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-3 p-4 border-b border-border">
-        <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-          <Bot className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <div>
-          <h2 className="font-semibold text-foreground">GrantAI Assistant</h2>
-          <p className="text-xs text-muted-foreground">Powered by AI • Free Model</p>
-        </div>
-        <Sparkles className="w-4 h-4 text-primary ml-auto animate-pulse" />
-      </div>
-
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
           {messages.map((message, index) => (
@@ -147,10 +134,10 @@ export function ChatInterface() {
               }`}
             >
               <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
                   message.role === "user"
-                    ? "bg-primary/20 text-primary"
-                    : "gradient-primary text-primary-foreground"
+                    ? "bg-foreground text-background"
+                    : "bg-secondary text-secondary-foreground"
                 }`}
               >
                 {message.role === "user" ? (
@@ -160,31 +147,23 @@ export function ChatInterface() {
                 )}
               </div>
               <div
-                className={`max-w-[80%] p-3 text-sm ${
-                  message.role === "user" ? "chat-bubble-user" : "chat-bubble-ai"
+                className={`max-w-[80%] p-3 text-sm rounded-lg ${
+                  message.role === "user" 
+                    ? "bg-foreground text-background" 
+                    : "bg-secondary"
                 }`}
               >
-                <div className="prose prose-sm prose-invert max-w-none">
-                  {message.content.split('\n').map((line, i) => (
-                    <p key={i} className={line.startsWith('•') ? 'ml-2' : ''}>
-                      {line.includes('**') 
-                        ? line.split('**').map((part, j) => 
-                            j % 2 === 1 ? <strong key={j}>{part}</strong> : part
-                          )
-                        : line}
-                    </p>
-                  ))}
-                </div>
+                {message.content}
               </div>
             </div>
           ))}
           {isLoading && messages[messages.length - 1]?.role === "user" && (
             <div className="flex gap-3 animate-fade-in">
-              <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                <Bot className="w-4 h-4 text-primary-foreground" />
+              <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center">
+                <Bot className="w-4 h-4" />
               </div>
-              <div className="chat-bubble-ai p-3">
-                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <div className="bg-secondary p-3 rounded-lg">
+                <Loader2 className="w-4 h-4 animate-spin" />
               </div>
             </div>
           )}
@@ -192,14 +171,13 @@ export function ChatInterface() {
       </ScrollArea>
 
       {messages.length === 1 && (
-        <div className="px-4 pb-2">
-          <p className="text-xs text-muted-foreground mb-2">Quick prompts:</p>
+        <div className="px-4 pb-3">
           <div className="flex flex-wrap gap-2">
             {QUICK_PROMPTS.map((prompt) => (
               <button
                 key={prompt}
                 onClick={() => sendMessage(prompt)}
-                className="text-xs px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-colors"
+                className="text-sm px-3 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
               >
                 {prompt}
               </button>
@@ -219,11 +197,10 @@ export function ChatInterface() {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about grants, hackathons, or funding..."
-            className="bg-secondary border-border"
+            placeholder="Ask about grants..."
             disabled={isLoading}
           />
-          <Button type="submit" variant="glow" size="icon" disabled={isLoading}>
+          <Button type="submit" size="icon" disabled={isLoading}>
             <Send className="w-4 h-4" />
           </Button>
         </form>
